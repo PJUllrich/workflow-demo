@@ -62,7 +62,6 @@ classDiagram
     Command <|.. SendWebhookEvent
     Command <|.. WaitForResponse
     Workflows <-- Controller : create document\nrecord response
-    %% Workflow <-- Controller
     
     Document <-- Workflow : has one
     ParseDocumentContent <-- ParseDocument
