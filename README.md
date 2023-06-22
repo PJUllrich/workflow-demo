@@ -4,6 +4,10 @@ This repository contains a proof-of-concept, brain-teaser exercise for designing
 
 > I implemented this as an exercise in Software Architecture. You may use this solution in your own product, but please let me know which challenges you encounter so that I can improve the architecture. Thanks!
 
+## Walkthrough Loom
+
+https://www.loom.com/share/0ac77d6e259b48ef8adf684a3d099e5f
+
 ## Setup
 
 First, you need to fetch the dependencies with:

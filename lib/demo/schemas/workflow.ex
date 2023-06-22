@@ -31,7 +31,7 @@ defmodule Demo.Workflows.Workflow do
 
   alias Demo.Command
 
-  defstruct [:id, :document, :parent_workflow, :result, status: :pending, steps: []]
+  defstruct [:id, :document, :result, status: :pending, steps: []]
 
   def mark_as_completed(workflow) do
     mark_as(workflow, :completed)
