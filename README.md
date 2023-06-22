@@ -1,8 +1,8 @@
-# Workflow Proof of Concept
+# Document Processing Workflow - Proof of Concept
 
-This repository is a proof-of-concept, brain-teaser demo for designing and implement a document processing workflow. It's an exercise in designing composable workflows that can be configured by a user without the need of a code release.
+This repository contains a proof-of-concept, brain-teaser exercise for designing and implementing a document processing workflow. It's an exercise in designing composable workflows that a user can configure through e.g. a UI and that can be used immediately without the need of a code release.
 
-I implemented this as an exercise in Software Architecture. You may use this solution in your own product, but please let me know which challenges you encounter so that I can improve this architecture. Thanks!
+> I implemented this as an exercise in Software Architecture. You may use this solution in your own product, but please let me know which challenges you encounter so that I can improve the architecture. Thanks!
 
 ## Architecture Overview
 
@@ -20,19 +20,19 @@ Based on these requirements, I designed a solution that revolves around a few ke
 ### `Workflow`. 
 A workflow describes the document processing flow from start to end. Every new document receives one `Workflow`. The workflow is executed by the `Engine` and its state is persisted by the `Workflows` context. 
 
-A workflow has multiple `steps`, which are a list of `Commands`. When a workflow is executed by the `Engine`, every command receives the output result of the previous command.
+A workflow has multiple `steps`, which are a list of `Commands`. The commands can be configured by the user. When a workflow is executed by the `Engine`, every command is execute in order and receives the output result of the previous command.
 
-The status of a workflow can be `:pending`, `:waiting`, `:aborted`, or `completed`. After the workflow is created, it is waiting to be executed by the `Engine`. While it is waiting, it has the status `:pending`. A workflow can be `:aborted` early if a command returns `:abort`. The workflow can also be suspended by a command that returns `:wait`. If a workflow is waiting, it can be unsuspended by changing its status to `:pending`. While a workflow is `waiting`, it will not be executed by the `Engine`. Once every step in the workflow has been executed successfully, it is `:completed`. 
+The status of a workflow can be `:pending`, `:waiting`, `:aborted`, or `:completed`. After the workflow is created, it is waiting to be executed by the `Engine`. While it is waiting, it has the status `:pending`. A workflow can be `:aborted` early if a command returns `:abort`. The workflow can also be suspended by a command that returns `:wait`. If a workflow is waiting, it can be unsuspended by changing its status back to `:pending`. The `Engine` will then pick up the workflow again. While a workflow is `waiting`, it will not be executed by the `Engine`. Once every step in the workflow has been executed successfully, the workflow is `:completed`. 
 
 ### `Command`
-A command respresents a single step in a `Workflow`. Every command has a command `module` that implements the logic of the command. Commands can be configured through a `params`-map. See the `Mock.ExampleWorkflow` for examples of how to create command. 
+A command respresents a single step in a `Workflow`. Every command has a command `module` that implements the logic of the command. Commands can be configured through a `params`-map. See the `Mock.ExampleWorkflow` for examples of how to create a workflow with multiple commands. 
 
-When a command is executed by the `Engine`, the command `module` receives the command, the workflow, and the result of the previous command. The command moduled executes the command logic based on the input and returns either `{:ok, result}`, `:abort`, or an `{:error, any()}`. The `result` can also be `:wait`, if the command wants that the workflow waits for an input from an external service like a customer's server or a user input in a UI. 
+When a command is executed by the `Engine`, the command `module` receives the command, the workflow, and the result of the previous command. The command module executes the command logic based on the input and returns either `{:ok, result}` or `{:error, any()}`. The `result` can be anything, but special return values are `:wait` and `:abort`. A command can return `{:ok, workflow, :wait}` if it wants that the workflow waits for an input from an external service like a customer's server or a user input in a UI. If a command wants to abort the workflow, it can return `{:ok, workflow, :abort}`. 
 
-Every command stores its result so that we can audit later on which command/step in a workflow returned which result.
+Every command stores its result so that we can see later which command/step in a workflow returned which result.
 
 ### `Engine`
-The engine executes a workflow. It iterates through all steps/commands of a workflow until one of the following exit conditions occurs:
+The engine executes a workflow. It iterates through all commands of a workflow until one of the following exit conditions occurs:
 1. All commands of the workflow were completed successfully.
       * In this case, the engine completes the workflow (sets the workflow status to `:completed`).
 2. The workflow was aborted.
@@ -42,7 +42,11 @@ The engine executes a workflow. It iterates through all steps/commands of a work
 
 The engine executes every command in the workflow and stores the result of the execution on the command. If a command instructs the workflow to wait, that command is set to `:waiting` and it will become the first command to be executed once the workflow is re-queued because a response has come in.
 
+If the engine re-runs a workflow, it will skip any `:completed` commands and will continue the execution of the workflow with the first command that is `:waiting`. 
+
 ### Module Dependency Diagram
+Here's a rough dependency diagram between all the modules in this proof-of-concept: 
+
 ```mermaid
 classDiagram
     Controller <.. DocumentProducer
