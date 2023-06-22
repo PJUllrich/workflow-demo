@@ -49,22 +49,21 @@ Here's a rough dependency diagram between all the modules in this proof-of-conce
 
 ```mermaid
 classDiagram
-    Controller <.. DocumentProducer
     ExampleWorkflow <.. Workflows
-    CustomerServer <.. SendWebhookEvent
+    Controller <.. DocumentProducer
     Workflows <-- Engine
-    Workflow <-- Engine
     Command <-- Engine
-    Command <-- Workflow
+    ParseDocumentContent <-- ParseDocument
+    Workflow <-- Engine
     Command <|.. EvaluateIfThenElse
     Command <|.. ParseDocument
     Command <|.. ParseHTTPRequest
-    Command <|.. SendWebhookEvent
     Command <|.. WaitForResponse
+    Command <|.. SendWebhookEvent
     Workflows <-- Controller
-    
+    Command <-- Workflow
     Document <-- Workflow
-    ParseDocumentContent <-- ParseDocument
+    CustomerServer <.. SendWebhookEvent
 
     class Engine
     class ExampleWorkflow
