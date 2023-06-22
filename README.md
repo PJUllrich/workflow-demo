@@ -22,7 +22,7 @@ A workflow describes the document processing flow from start to end. Every new d
 
 A workflow has multiple `steps`, which are a list of `Commands`. The commands can be configured by the user. When a workflow is executed by the `Engine`, every command is execute in order and receives the output result of the previous command.
 
-The status of a workflow can be `:pending`, `:waiting`, `:aborted`, or `:completed`. After the workflow is created, it is waiting to be executed by the `Engine`. While it is waiting, it has the status `:pending`. A workflow can be `:aborted` early if a command returns `:abort`. The workflow can also be suspended by a command that returns `:wait`. If a workflow is waiting, it can be unsuspended by changing its status back to `:pending`. The `Engine` will then pick up the workflow again. While a workflow is `waiting`, it will not be executed by the `Engine`. Once every step in the workflow has been executed successfully, the workflow is `:completed`. 
+The status of a workflow can be `:pending`, `:running`, `:waiting`, `:aborted`, or `:completed`. After the workflow is created, it is waiting to be executed by the `Engine`. While it is waiting, it has the status `:pending`. Once the engine starts executing the worflow, the workflow status becomes `:running`. A workflow can be `:aborted` early if a command returns `:abort`. The workflow can also be suspended by a command that returns `:wait`. If a workflow is waiting, it can be unsuspended by changing its status back to `:pending`. The `Engine` will then pick up the workflow again. While a workflow is `waiting`, it will not be executed by the `Engine`. Once every step in the workflow has been executed successfully, the workflow is `:completed`. 
 
 ### `Command`
 A command respresents a single step in a `Workflow`. Every command has a command `module` that implements the logic of the command. Commands can be configured through a `params`-map. See the `Mock.ExampleWorkflow` for examples of how to create a workflow with multiple commands. 
@@ -49,56 +49,9 @@ Here's a rough dependency diagram between all the modules in this proof-of-conce
 
 ```mermaid
 classDiagram
-    Controller <.. DocumentProducer
-    ExampleWorkflow <.. Workflows : create
-    CustomerServer <.. SendWebhookEvent : http request
-    Workflows <-- Engine : update workflow\nget next pending workflow
-    Workflow <-- Engine
-    Command <-- Engine
-    Command <-- Workflow
-    Command <|.. EvaluateIfThenElse
-    Command <|.. ParseDocument
-    Command <|.. ParseHTTPRequest : implements
-    Command <|.. SendWebhookEvent
-    Command <|.. WaitForResponse
-    Workflows <-- Controller : create document\nrecord response
-    
-    Document <-- Workflow : has one
-    ParseDocumentContent <-- ParseDocument
-
     class Engine
     class ExampleWorkflow
-    class DocumentProducer
-    
-    namespace Web {
-        class Controller
-    }
-    
-    namespace Contexts {
-        class Workflows        
-    }
-
-    namespace Schemas {
-        class Workflow
-        class Command
-        class Document
-    }
-
-    namespace Commands {
-        class EvaluateIfThenElse
-        class ParseDocument
-        class ParseHTTPRequest
-        class SendWebhookEvent
-        class WaitForResponse
-    }
-
-    namespace Services {
-        class ParseDocumentContent
-    }
-
-    namespace External {
-        class CustomerServer
-    }
+    class DocumentProducer 
 ```
 
 ## Example Workflow
