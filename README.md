@@ -4,6 +4,27 @@ This repository contains a proof-of-concept, brain-teaser exercise for designing
 
 > I implemented this as an exercise in Software Architecture. You may use this solution in your own product, but please let me know which challenges you encounter so that I can improve the architecture. Thanks!
 
+## Setup
+
+First, you need to fetch the dependencies with:
+
+```
+mix deps.get
+```
+
+Then, you can run the application and watch the example workflow handle one document every 10s by running:
+
+```
+iex -S mix
+```
+
+This will start the application and all its GenServers.
+
+You can run the tests with:
+```
+mix test
+```
+
 ## Architecture Overview
 
 The (self-imposed) requirements of the document parsing workflow architecture were:

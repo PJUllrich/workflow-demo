@@ -1,6 +1,14 @@
 defmodule Demo.Engine do
   @moduledoc """
+  The Engine is executes a Workflow.
 
+  Every second (configurable), it pulls a pending workflow and executes its
+  commands in order. When a workflow completes, aborts, or waits, it updates
+  workflow and picks up the next workflow.
+
+  The engine can pick up and continue previously suspended workflows (those
+  that are :waiting). When it continues a workflow, it skips all completed
+  commands and executes the first :waiting command.
   """
 
   use GenServer
