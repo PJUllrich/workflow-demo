@@ -66,25 +66,31 @@ The engine executes every command in the workflow and stores the result of the e
 If the engine re-runs a workflow, it will skip any `:completed` commands and will continue the execution of the workflow with the first command that is `:waiting`. 
 
 ### Module Dependency Diagram
-Here's a rough dependency diagram between all the modules in this proof-of-concept: 
+Here's a rough dependency diagram between all the modules in this proof-of-concept.
+
+Solid lines represent function calls between modules and dotted lines represent indirect calls through e.g. message passing.
+
+For example, the `DocumentProducer` sends an event to the `Controller`, which is why the line is dotted.
+The `Workflows` calls the `ExampleWorkflow` module directly, which is why the line is solid.
 
 ```mermaid
 classDiagram
-    ExampleWorkflow <.. Workflows
+    ExampleWorkflow <-- Workflows
+    CustomerServer <.. SendWebhookEvent
     Controller <.. DocumentProducer
     Workflows <-- Engine
     Command <-- Engine
     ParseDocumentContent <-- ParseDocument
+    Command --> EvaluateIfThenElse
     Workflow <-- Engine
-    Command <|.. EvaluateIfThenElse
-    Command <|.. ParseDocument
-    Command <|.. ParseHTTPRequest
-    Command <|.. WaitForResponse
-    Command <|.. SendWebhookEvent
-    Workflows <-- Controller
+    Command --> ParseDocument
+    Command --> ParseHTTPRequest
+    Command --> WaitForResponse
+    Command --> SendWebhookEvent
     Command <-- Workflow
     Document <-- Workflow
-    CustomerServer <.. SendWebhookEvent
+    Workflows <-- Controller
+    Controller <.. CustomerServer
 
     class Engine
     class ExampleWorkflow
